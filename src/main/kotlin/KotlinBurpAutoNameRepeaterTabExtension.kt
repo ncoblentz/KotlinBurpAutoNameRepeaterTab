@@ -1,5 +1,16 @@
 import burp.api.montoya.BurpExtension
 import burp.api.montoya.MontoyaApi
+import burp.api.montoya.http.message.requests.HttpRequest
+import burp.api.montoya.ui.contextmenu.AuditIssueContextMenuEvent
+import burp.api.montoya.ui.contextmenu.ContextMenuEvent
+import burp.api.montoya.ui.contextmenu.ContextMenuItemsProvider
+import burp.api.montoya.ui.contextmenu.WebSocketContextMenuEvent
+import com.nickcoblentz.montoya.LogLevel
+import com.nickcoblentz.montoya.MontoyaLogger
+import java.awt.Component
+import javax.swing.JMenuItem
+
+
 /* Uncomment this section if you wish to use persistent settings and automatic UI Generation from: https://github.com/ncoblentz/BurpMontoyaLibrary
 import com.nickcoblentz.montoya.settings.*
 import de.milchreis.uibooster.model.Form
@@ -9,15 +20,16 @@ import de.milchreis.uibooster.model.FormBuilder
 // Montoya API Documentation: https://portswigger.github.io/burp-extensions-montoya-api/javadoc/burp/api/montoya/MontoyaApi.html
 // Montoya Extension Examples: https://github.com/PortSwigger/burp-extensions-montoya-api-examples
 
-class YourBurpKotlinExtensionName : BurpExtension {
+class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsProvider {
     private lateinit var api: MontoyaApi
+    private lateinit var logger: MontoyaLogger
+    private val sendToRepeaterMenuItem = JMenuItem("Send To Repeater")
+    private var requests = emptyList<HttpRequest>()
 
 
     // Uncomment this section if you wish to use persistent settings and automatic UI Generation from: https://github.com/ncoblentz/BurpMontoyaLibrary
     // Add one or more persistent settings here
     // private lateinit var exampleNameSetting : StringExtensionSetting
-
-
 
     override fun initialize(api: MontoyaApi?) {
 
@@ -28,8 +40,10 @@ class YourBurpKotlinExtensionName : BurpExtension {
         // Finally, assign the MontoyaApi instance (not nullable) to a class property to be accessible from other functions in this class
         this.api = requireNotNull(api) { "api : MontoyaApi is not allowed to be null" }
 
+        logger = MontoyaLogger(api, LogLevel.DEBUG)
+
         // This will print to Burp Suite's Extension output and can be used to debug whether the extension loaded properly
-        api.logging().logToOutput("Started loading the extension...")
+        logger.debugLog("Started loading the extension...")
 
         /* Uncomment this section if you wish to use persistent settings and automatic UI Generation from: https://github.com/ncoblentz/BurpMontoyaLibrary
 
@@ -63,17 +77,66 @@ class YourBurpKotlinExtensionName : BurpExtension {
         */
 
         // Name our extension when it is displayed inside of Burp Suite
-        api.extension().setName("Your Plugin Name Here")
+        api.extension().setName("Auto Name Repeater Tab")
 
         // Code for setting up your extension starts here...
 
         // Just a simple hello world to start with
-        api.logging().logToOutput("Hello Extension Writer!")
+        api.userInterface().registerContextMenuItemsProvider(this)
+        sendToRepeaterMenuItem.addActionListener {_ -> sendToRepeater() }
 
         // Code for setting up your extension ends here
 
         // See logging comment above
-        api.logging().logToOutput("...Finished loading the extension")
+        logger.debugLog("...Finished loading the extension")
 
     }
+
+    fun sendToRepeater() {
+        if(!requests.isEmpty()) {
+            for(request in requests) {
+                api.repeater().sendToRepeater(request,extractTabNameFromRequest(request))
+            }
+        }
+    }
+
+    fun extractTabNameFromRequest(request : HttpRequest) : String {
+        return buildString {
+            append(request.method()+" ")
+            append(request.path()
+                .replace("/\\d+".toRegex(),"/:num")
+                .replace("/api","")
+                .replace("/v\\d/".toRegex(),""))
+        }.toString()
+    }
+
+    override fun provideMenuItems(event: ContextMenuEvent?): MutableList<Component> {
+        event?.let {
+            requests = if(!it.selectedRequestResponses().isEmpty()) {
+                it.selectedRequestResponses().map { it.request() }
+            }
+            else if(!it.messageEditorRequestResponse().isEmpty) {
+                listOf(it.messageEditorRequestResponse().get().requestResponse().request())
+            }
+            else {
+                emptyList<HttpRequest>()
+            }
+
+            if(!requests.isEmpty()) {
+
+                return mutableListOf(sendToRepeaterMenuItem);
+            }
+        }
+        return mutableListOf<Component>()
+    }
+
+    override fun provideMenuItems(event: WebSocketContextMenuEvent?): MutableList<Component> {
+        return super.provideMenuItems(event)
+    }
+
+    override fun provideMenuItems(event: AuditIssueContextMenuEvent?): MutableList<Component> {
+        return super.provideMenuItems(event)
+    }
+
+
 }

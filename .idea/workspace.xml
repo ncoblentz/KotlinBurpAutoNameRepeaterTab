@@ -5,30 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="42c0f498-99ac-4027-84e6-661e59db9552" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/kotlinc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/IntellijSetup/DownloadJDK.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/IntellijSetup/InitialBuildOnStartup.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/IntellijSetup/JDK21.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/IntellijSetup/JDK21Selected.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/IntellijSetup/Kotlin2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/IntellijSetup/ReloadGradle.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/Montoya/MontoyaApiDocumentation.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/V1/V1Breakpoint.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Documentation/V1/V1Loaded.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/YourBurpKotlinExtensionName.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -11,6 +11,7 @@ This project allows you to send one or more requests to the Repeater and automat
 - `/api`
 - `/v1` or `/v2`
 - replaces `/121212121` with `/:num`
+- replaces guids/uuids with `/:uuid`
 
 ### How to Build a Project
 
@@ -21,4 +22,3 @@ This project was initially created using the template found at: https://github.c
 - Load the built jar file in Burp Suite
 - Debug Burp Suite extensions using IntelliJ
 - Provides links to documentation for building Burp Suite Plugins
-

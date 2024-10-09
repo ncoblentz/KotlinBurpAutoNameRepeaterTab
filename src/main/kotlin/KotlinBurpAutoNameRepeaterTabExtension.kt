@@ -103,10 +103,11 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
     fun extractTabNameFromRequest(request : HttpRequest) : String {
         return buildString {
             append(request.method()+" ")
-            append(request.path()
+            append(request.pathWithoutQuery()
                 .replace("/\\d+".toRegex(),"/:num")
                 .replace("/api","")
-                .replace("/v\\d/".toRegex(),""))
+                .replace("/v\\d/".toRegex(),"")
+                .replace("/[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}".toRegex(RegexOption.IGNORE_CASE),"/:uuid"))
         }.toString()
     }
 

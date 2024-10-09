@@ -13,6 +13,8 @@ This project allows you to send one or more requests to the Repeater and automat
 - replaces `/121212121` with `/:num`
 - replaces guids/uuids with `/:uuid`
 
+It also allows you to select multiple requests from the proxy history or logger tab and send them to organizer.
+
 ### How to Build a Project
 
 #### Setup

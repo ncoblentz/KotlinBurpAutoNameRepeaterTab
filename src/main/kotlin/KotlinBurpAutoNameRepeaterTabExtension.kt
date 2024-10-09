@@ -24,6 +24,7 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
     private lateinit var api: MontoyaApi
     private lateinit var logger: MontoyaLogger
     private val sendToRepeaterMenuItem = JMenuItem("Send To Repeater")
+    private val sendToOrganizerMenuItem = JMenuItem("Send To Organizer")
     private var requests = emptyList<HttpRequest>()
 
 
@@ -84,12 +85,21 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
         // Just a simple hello world to start with
         api.userInterface().registerContextMenuItemsProvider(this)
         sendToRepeaterMenuItem.addActionListener {_ -> sendToRepeater() }
+        sendToOrganizerMenuItem.addActionListener {_ -> sendToOrganizer() }
 
         // Code for setting up your extension ends here
 
         // See logging comment above
         logger.debugLog("...Finished loading the extension")
 
+    }
+
+    fun sendToOrganizer() {
+        if(!requests.isEmpty()) {
+            for(request in requests) {
+                api.organizer().sendToOrganizer(request)
+            }
+        }
     }
 
     fun sendToRepeater() {
@@ -126,7 +136,7 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
 
             if(!requests.isEmpty()) {
 
-                return mutableListOf(sendToRepeaterMenuItem);
+                return mutableListOf(sendToRepeaterMenuItem, sendToOrganizerMenuItem);
             }
         }
         return mutableListOf<Component>()

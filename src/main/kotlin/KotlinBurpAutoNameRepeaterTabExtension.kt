@@ -104,10 +104,11 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
         return buildString {
             append(request.method()+" ")
             append(request.pathWithoutQuery()
+                .replace("/[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}".toRegex(RegexOption.IGNORE_CASE),"/:uuid")
+                .replace("/api/","/")
                 .replace("/\\d+".toRegex(),"/:num")
-                .replace("/api","")
-                .replace("/v\\d/".toRegex(),"")
-                .replace("/[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}".toRegex(RegexOption.IGNORE_CASE),"/:uuid"))
+                .replace("/v\\d/".toRegex(),"/")
+                )
         }.toString()
     }
 

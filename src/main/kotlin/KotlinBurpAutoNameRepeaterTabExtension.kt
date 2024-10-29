@@ -1,5 +1,6 @@
 import burp.api.montoya.BurpExtension
 import burp.api.montoya.MontoyaApi
+import burp.api.montoya.http.message.HttpRequestResponse
 import burp.api.montoya.http.message.requests.HttpRequest
 import burp.api.montoya.ui.contextmenu.AuditIssueContextMenuEvent
 import burp.api.montoya.ui.contextmenu.ContextMenuEvent
@@ -25,7 +26,7 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
     private lateinit var logger: MontoyaLogger
     private val sendToRepeaterMenuItem = JMenuItem("Send To Repeater")
     private val sendToOrganizerMenuItem = JMenuItem("Send To Organizer")
-    private var requests = emptyList<HttpRequest>()
+    private var requestResponses = emptyList<HttpRequestResponse>()
 
 
     // Uncomment this section if you wish to use persistent settings and automatic UI Generation from: https://github.com/ncoblentz/BurpMontoyaLibrary
@@ -95,17 +96,17 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
     }
 
     fun sendToOrganizer() {
-        if(!requests.isEmpty()) {
-            for(request in requests) {
-                api.organizer().sendToOrganizer(request)
+        if(!requestResponses.isEmpty()) {
+            for(requestResponse in requestResponses) {
+                api.organizer().sendToOrganizer(requestResponse)
             }
         }
     }
 
     fun sendToRepeater() {
-        if(!requests.isEmpty()) {
-            for(request in requests) {
-                api.repeater().sendToRepeater(request,extractTabNameFromRequest(request))
+        if(!requestResponses.isEmpty()) {
+            for(requestResponse in requestResponses) {
+                api.repeater().sendToRepeater(requestResponse.request(),extractTabNameFromRequest(requestResponse.request()))
             }
         }
     }
@@ -124,18 +125,17 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
 
     override fun provideMenuItems(event: ContextMenuEvent?): MutableList<Component> {
         event?.let {
-            requests = if(!it.selectedRequestResponses().isEmpty()) {
-                it.selectedRequestResponses().map { it.request() }
+            requestResponses = if(!it.selectedRequestResponses().isEmpty()) {
+                it.selectedRequestResponses()
             }
             else if(!it.messageEditorRequestResponse().isEmpty) {
-                listOf(it.messageEditorRequestResponse().get().requestResponse().request())
+                listOf(it.messageEditorRequestResponse().get().requestResponse())
             }
             else {
-                emptyList<HttpRequest>()
+                emptyList<HttpRequestResponse>()
             }
 
-            if(!requests.isEmpty()) {
-
+            if(!requestResponses.isEmpty()) {
                 return mutableListOf(sendToRepeaterMenuItem, sendToOrganizerMenuItem);
             }
         }

@@ -26,6 +26,7 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
     private lateinit var logger: MontoyaLogger
     private val sendToRepeaterMenuItem = JMenuItem("Send To Repeater")
     private val sendToOrganizerMenuItem = JMenuItem("Send To Organizer")
+    private val addBaseURLToScopeMenuItem = JMenuItem("Add base URL to Scope")
     private var requestResponses = emptyList<HttpRequestResponse>()
 
 
@@ -87,6 +88,7 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
         api.userInterface().registerContextMenuItemsProvider(this)
         sendToRepeaterMenuItem.addActionListener {_ -> sendToRepeater() }
         sendToOrganizerMenuItem.addActionListener {_ -> sendToOrganizer() }
+        addBaseURLToScopeMenuItem.addActionListener  {_ -> addToScope() }
 
         // Code for setting up your extension ends here
 
@@ -95,23 +97,31 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
 
     }
 
-    fun sendToOrganizer() {
-        if(!requestResponses.isEmpty()) {
+    private fun addToScope() {
+        if(requestResponses.isNotEmpty()) {
             for(requestResponse in requestResponses) {
                 api.organizer().sendToOrganizer(requestResponse)
             }
         }
     }
 
-    fun sendToRepeater() {
-        if(!requestResponses.isEmpty()) {
+    private fun sendToOrganizer() {
+        if(requestResponses.isNotEmpty()) {
+            for(requestResponse in requestResponses) {
+                api.organizer().sendToOrganizer(requestResponse)
+            }
+        }
+    }
+
+    private fun sendToRepeater() {
+        if(requestResponses.isNotEmpty()) {
             for(requestResponse in requestResponses) {
                 api.repeater().sendToRepeater(requestResponse.request(),extractTabNameFromRequest(requestResponse.request()))
             }
         }
     }
 
-    fun extractTabNameFromRequest(request : HttpRequest) : String {
+    private fun extractTabNameFromRequest(request : HttpRequest) : String {
         return buildString {
             append(request.method()+" ")
             append(request.pathWithoutQuery()
@@ -120,12 +130,12 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
                 .replace("/\\d+".toRegex(),"/:num")
                 .replace("/v\\d/".toRegex(),"/")
                 )
-        }.toString()
+        }
     }
 
     override fun provideMenuItems(event: ContextMenuEvent?): MutableList<Component> {
         event?.let {
-            requestResponses = if(!it.selectedRequestResponses().isEmpty()) {
+            requestResponses = if(it.selectedRequestResponses().isNotEmpty()) {
                 it.selectedRequestResponses()
             }
             else if(!it.messageEditorRequestResponse().isEmpty) {
@@ -135,8 +145,8 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
                 emptyList<HttpRequestResponse>()
             }
 
-            if(!requestResponses.isEmpty()) {
-                return mutableListOf(sendToRepeaterMenuItem, sendToOrganizerMenuItem);
+            if(requestResponses.isNotEmpty()) {
+                return mutableListOf(sendToRepeaterMenuItem, sendToOrganizerMenuItem)
             }
         }
         return mutableListOf<Component>()

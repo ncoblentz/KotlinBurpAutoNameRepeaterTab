@@ -100,7 +100,7 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
     private fun addToScope() {
         if(requestResponses.isNotEmpty()) {
             for(requestResponse in requestResponses) {
-                api.organizer().sendToOrganizer(requestResponse)
+                api.scope().includeInScope(requestResponse.request().url().replace(requestResponse.request().path(),""));
             }
         }
     }
@@ -146,7 +146,7 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
             }
 
             if(requestResponses.isNotEmpty()) {
-                return mutableListOf(sendToRepeaterMenuItem, sendToOrganizerMenuItem)
+                return mutableListOf(sendToRepeaterMenuItem, sendToOrganizerMenuItem, addBaseURLToScopeMenuItem)
             }
         }
         return mutableListOf<Component>()

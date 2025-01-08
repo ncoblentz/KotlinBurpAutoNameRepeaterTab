@@ -26,7 +26,8 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
     private lateinit var logger: MontoyaLogger
     private val sendToRepeaterMenuItem = JMenuItem("Send To Repeater")
     private val sendToOrganizerMenuItem = JMenuItem("Send To Organizer")
-    private val addBaseURLToScopeMenuItem = JMenuItem("Add base URL to Scope")
+    private val includeBaseURLInScopeMenuItem = JMenuItem("Add Base URL to Scope")
+    private val excludeBaseURLFromScopeMenuItem = JMenuItem("Exclude Base URL from Scope")
     private var requestResponses = emptyList<HttpRequestResponse>()
 
 
@@ -88,7 +89,8 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
         api.userInterface().registerContextMenuItemsProvider(this)
         sendToRepeaterMenuItem.addActionListener {_ -> sendToRepeater() }
         sendToOrganizerMenuItem.addActionListener {_ -> sendToOrganizer() }
-        addBaseURLToScopeMenuItem.addActionListener  {_ -> addToScope() }
+        includeBaseURLInScopeMenuItem.addActionListener  { _ -> includeInScope() }
+        excludeBaseURLFromScopeMenuItem.addActionListener  {_ -> excludeFromScope() }
 
         // Code for setting up your extension ends here
 
@@ -97,10 +99,18 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
 
     }
 
-    private fun addToScope() {
+    private fun includeInScope() {
         if(requestResponses.isNotEmpty()) {
             for(requestResponse in requestResponses) {
                 api.scope().includeInScope(requestResponse.request().url().replace(requestResponse.request().path(),""));
+            }
+        }
+    }
+
+    private fun excludeFromScope() {
+        if(requestResponses.isNotEmpty()) {
+            for(requestResponse in requestResponses) {
+                api.scope().excludeFromScope(requestResponse.request().url().replace(requestResponse.request().path(),""));
             }
         }
     }
@@ -146,7 +156,7 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
             }
 
             if(requestResponses.isNotEmpty()) {
-                return mutableListOf(sendToRepeaterMenuItem, sendToOrganizerMenuItem, addBaseURLToScopeMenuItem)
+                return mutableListOf(sendToRepeaterMenuItem, sendToOrganizerMenuItem, includeBaseURLInScopeMenuItem, excludeBaseURLFromScopeMenuItem)
             }
         }
         return mutableListOf<Component>()

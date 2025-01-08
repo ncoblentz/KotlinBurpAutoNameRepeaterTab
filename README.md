@@ -15,7 +15,7 @@ This project allows you to send one or more requests to the Repeater and automat
 
 It also allows you to select multiple requests from the proxy history or logger tab and send them to organizer.
 
-Last, you can select one or more requests and choose "Add Base URL to Scope" and it will add them to the Target->Scope section without the path. For example, `https://www.google.com/somethingcool.php/myparam=blah` gets added to Burp Suite's scope section as `https://www.google.com` 
+Last, you can select one or more requests and choose "Add Base URL to Scope" or "Exclude Base URL from Scope" and it will add them to the Target->Scope section without the path. For example, `https://www.google.com/somethingcool.php/myparam=blah` gets added to Burp Suite's scope section as `https://www.google.com` 
 
 ### How to Build a Project
 

@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="42c0f498-99ac-4027-84e6-661e59db9552" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/KotlinBurpAutoNameRepeaterTabExtension.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/KotlinBurpAutoNameRepeaterTabExtension.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -67,6 +65,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Attach to process.pid 32766.executor": "ProcessAttachDebug",
     "Gradle.KotlinBurpAutoNameRepeaterTab [assemble].executor": "Run",
     "Gradle.KotlinBurpAutoNameRepeaterTab [build].executor": "Run",
     "Gradle.KotlinBurpAutoNameRepeaterTab [clean].executor": "Run",
@@ -188,5 +187,16 @@
       <updated>1728401113630</updated>
     </task>
     <servers />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/KotlinBurpAutoNameRepeaterTabExtension.kt</url>
+          <line>107</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

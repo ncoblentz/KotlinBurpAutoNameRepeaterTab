@@ -102,7 +102,10 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
     private fun includeInScope() {
         if(requestResponses.isNotEmpty()) {
             for(requestResponse in requestResponses) {
-                api.scope().includeInScope(requestResponse.request().url().replace(requestResponse.request().path(),""));
+                val url = getBasURL(requestResponse)
+                api.logging().logToOutput(requestResponse.request().url())
+                api.logging().logToOutput(url)
+                api.scope().includeInScope(url);
             }
         }
     }
@@ -110,10 +113,14 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
     private fun excludeFromScope() {
         if(requestResponses.isNotEmpty()) {
             for(requestResponse in requestResponses) {
-                api.scope().excludeFromScope(requestResponse.request().url().replace(requestResponse.request().path(),""));
+                val url = getBasURL(requestResponse)
+                api.logging().logToOutput(url)
+                api.scope().excludeFromScope(url)
             }
         }
     }
+
+    private fun getBasURL(requestResponse: HttpRequestResponse) : String = requestResponse.request().url().replace(requestResponse.request().path().substring(1),"")
 
     private fun sendToOrganizer() {
         if(requestResponses.isNotEmpty()) {

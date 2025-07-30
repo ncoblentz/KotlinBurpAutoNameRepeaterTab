@@ -29,6 +29,7 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
     private val excludeBaseURLFromScopeMenuItem = JMenuItem("Exclude Base URL from Scope")
     private var requestResponses = emptyList<HttpRequestResponse>()
     private lateinit var myExtensionSettings : MyExtensionSettings
+    private var organizerCounter = 0
 
     // Uncomment this section if you wish to use persistent settings and automatic UI Generation from: https://github.com/ncoblentz/BurpMontoyaLibrary
     // Add one or more persistent settings here
@@ -95,9 +96,16 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
 
     private fun sendToOrganizer() {
         if(requestResponses.isNotEmpty()) {
+            if(myExtensionSettings.tagGroupsInOrganizerNotesSetting && requestResponses.size>1) {
+                organizerCounter++
+            }
+
             for(requestResponse in requestResponses) {
                 val annotationNotesBuilder = buildString {
                     append(myExtensionSettings.prependStringToOrganizerNotesSetting+" ")
+                    if(myExtensionSettings.tagGroupsInOrganizerNotesSetting && requestResponses.size>1) {
+                        append(" $organizerCounter ")
+                    }
                     if(myExtensionSettings.useTitleInOrganizerNotesSetting && requestResponse.hasResponse()) {
                         val body = requestResponse.response().bodyToString()
                         val titleStartString = "<title>"
@@ -182,6 +190,8 @@ class MyExtensionSettings {
     private val settingsManager = PanelSettingsDelegate(settingsPanelBuilder)
 
     val useTitleInOrganizerNotesSetting: Boolean by settingsManager.booleanSetting("Use the webpage title as part of the organizer notes", false)
+    val tagGroupsInOrganizerNotesSetting: Boolean by settingsManager.booleanSetting("When items are submitted to organizer together, tag them", false)
+
     val prependStringToOrganizerNotesSetting: String by settingsManager.stringSetting("Prepend this string to organizer notes", "")
     val appendStringToOrganizerNotesSetting: String by settingsManager.stringSetting("Append this string to organizer notes", "")
     val highlightColorForOrganizerSetting: String by settingsManager.listSetting("Color to highlight in when sending to organizer",HighlightColor.entries.map { it.name }.toMutableList(), HighlightColor.NONE.name)

@@ -1,22 +1,21 @@
 import burp.api.montoya.BurpExtension
 import burp.api.montoya.MontoyaApi
+import burp.api.montoya.core.HighlightColor
 import burp.api.montoya.http.message.HttpRequestResponse
 import burp.api.montoya.http.message.requests.HttpRequest
 import burp.api.montoya.ui.contextmenu.AuditIssueContextMenuEvent
 import burp.api.montoya.ui.contextmenu.ContextMenuEvent
 import burp.api.montoya.ui.contextmenu.ContextMenuItemsProvider
 import burp.api.montoya.ui.contextmenu.WebSocketContextMenuEvent
+import burp.api.montoya.ui.settings.SettingsPanelBuilder
+import burp.api.montoya.ui.settings.SettingsPanelPersistence
 import com.nickcoblentz.montoya.LogLevel
 import com.nickcoblentz.montoya.MontoyaLogger
+import com.nickcoblentz.montoya.settings.PanelSettingsDelegate
 import java.awt.Component
 import javax.swing.JMenuItem
+import burp.api.montoya.core.Annotations
 
-
-/* Uncomment this section if you wish to use persistent settings and automatic UI Generation from: https://github.com/ncoblentz/BurpMontoyaLibrary
-import com.nickcoblentz.montoya.settings.*
-import de.milchreis.uibooster.model.Form
-import de.milchreis.uibooster.model.FormBuilder
-*/
 
 // Montoya API Documentation: https://portswigger.github.io/burp-extensions-montoya-api/javadoc/burp/api/montoya/MontoyaApi.html
 // Montoya Extension Examples: https://github.com/PortSwigger/burp-extensions-montoya-api-examples
@@ -29,7 +28,7 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
     private val includeBaseURLInScopeMenuItem = JMenuItem("Add Base URL to Scope")
     private val excludeBaseURLFromScopeMenuItem = JMenuItem("Exclude Base URL from Scope")
     private var requestResponses = emptyList<HttpRequestResponse>()
-
+    private lateinit var myExtensionSettings : MyExtensionSettings
 
     // Uncomment this section if you wish to use persistent settings and automatic UI Generation from: https://github.com/ncoblentz/BurpMontoyaLibrary
     // Add one or more persistent settings here
@@ -49,41 +48,13 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
         // This will print to Burp Suite's Extension output and can be used to debug whether the extension loaded properly
         logger.debugLog("Started loading the extension...")
 
-        /* Uncomment this section if you wish to use persistent settings and automatic UI Generation from: https://github.com/ncoblentz/BurpMontoyaLibrary
-
-        exampleNameSetting = StringExtensionSetting(
-            // pass the montoya API to the setting
-            api,
-            // Give the setting a name which will show up in the Swing UI Form
-            "My Example Setting Name Here",
-            // Key for where to save this setting in Burp's persistence store
-            "MyPluginName.ExampleSettingNameHere",
-            // Default value within the Swing UI Form
-            "default value here",
-            // Whether to save it for this specific "PROJECT" or as a global Burp "PREFERENCE"
-            ExtensionSettingSaveLocation.PROJECT
-            )
 
 
-        // Create a list of all the settings defined above
-        // Don't forget to add more settings here if you define them above
-        val extensionSetting = listOf(exampleNameSetting)
-
-        val gen = GenericExtensionSettingsFormGenerator(extensionSetting, "Jwt Token Handler")
-        val settingsFormBuilder: FormBuilder = gen.getSettingsFormBuilder()
-        val settingsForm: Form = settingsFormBuilder.run()
-
-        // Tell Burp we want a right mouse click context menu for accessing the settings
-        api.userInterface().registerContextMenuItemsProvider(ExtensionSettingsContextMenuProvider(api, settingsForm))
-
-        // When we unload this extension, include a callback that closes any Swing UI forms instead of just leaving them still open
-        api.extension().registerUnloadingHandler(ExtensionSettingsUnloadHandler(settingsForm))
-        */
-
-        // Name our extension when it is displayed inside of Burp Suite
         api.extension().setName("Auto Name Repeater Tab")
 
-        // Code for setting up your extension starts here...
+
+        myExtensionSettings = MyExtensionSettings()
+        api.userInterface().registerSettingsPanel(myExtensionSettings.settingsPanel)
 
         // Just a simple hello world to start with
         api.userInterface().registerContextMenuItemsProvider(this)
@@ -125,7 +96,27 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
     private fun sendToOrganizer() {
         if(requestResponses.isNotEmpty()) {
             for(requestResponse in requestResponses) {
-                api.organizer().sendToOrganizer(requestResponse)
+                val annotationNotesBuilder = buildString {
+                    append(myExtensionSettings.prependStringToOrganizerNotesSetting+" ")
+                    if(myExtensionSettings.useTitleInOrganizerNotesSetting && requestResponse.hasResponse()) {
+                        val body = requestResponse.response().bodyToString()
+                        val titleStartString = "<title>"
+                        val titleStartIndex = body.indexOf(titleStartString)
+                        val titleEndIndex = body.indexOf("</title>")
+                        val headStartIndex = body.indexOf("<head>")
+                        val headEndIndex = body.indexOf("</head>")
+                        if(titleStartIndex != -1 && titleEndIndex != -1 && headStartIndex != -1 && headEndIndex != -1 &&
+                            titleStartIndex > headStartIndex && titleEndIndex < headEndIndex) {
+                            append(" "+body.substring(titleStartIndex+titleStartString.length,titleEndIndex)+" ")
+                        }
+                    }
+                    append(" "+myExtensionSettings.appendStringToOrganizerNotesSetting)
+                }
+
+                val highlightColor = HighlightColor.valueOf(myExtensionSettings.highlightColorForOrganizerSetting)
+
+
+                api.organizer().sendToOrganizer(requestResponse.withAnnotations(Annotations.annotations(annotationNotesBuilder.toString(),highlightColor)))
             }
         }
     }
@@ -176,6 +167,27 @@ class KotlinBurpAutoNameRepeaterTabExtension : BurpExtension, ContextMenuItemsPr
     override fun provideMenuItems(event: AuditIssueContextMenuEvent?): MutableList<Component> {
         return super.provideMenuItems(event)
     }
+
+
+}
+
+
+class MyExtensionSettings {
+    val settingsPanelBuilder : SettingsPanelBuilder = SettingsPanelBuilder.settingsPanel()
+        .withPersistence(SettingsPanelPersistence.PROJECT_SETTINGS)
+        .withTitle("Auto Name Repeater")
+        .withDescription("Update Settings")
+        .withKeywords("Auto Name")
+
+    private val settingsManager = PanelSettingsDelegate(settingsPanelBuilder)
+
+    val useTitleInOrganizerNotesSetting: Boolean by settingsManager.booleanSetting("Use the webpage title as part of the organizer notes", false)
+    val prependStringToOrganizerNotesSetting: String by settingsManager.stringSetting("Prepend this string to organizer notes", "")
+    val appendStringToOrganizerNotesSetting: String by settingsManager.stringSetting("Append this string to organizer notes", "")
+    val highlightColorForOrganizerSetting: String by settingsManager.listSetting("Color to highlight in when sending to organizer",HighlightColor.entries.map { it.name }.toMutableList(), HighlightColor.NONE.name)
+
+
+    val settingsPanel = settingsManager.buildSettingsPanel()
 
 
 }
